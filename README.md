@@ -1,2 +1,2 @@
 # project-jenkins
-Pengujian webhook GitHub ke Jenkins berhasil.
+Pengujian webhook GitHub ke Jenkins
