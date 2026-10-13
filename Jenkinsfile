@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'fdhil17/project-jenkins'
+        IMAGE_NAME = 'fdhil17/jenkins-push'
         REGISTRY_CREDENTIALS = 'dockerhub-credentials'
     }
 
