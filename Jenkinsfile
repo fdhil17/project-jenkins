@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -39,6 +38,12 @@ pipeline {
                     bat 'docker push %IMAGE_NAME%:latest'
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Selesai build'
         }
     }
 }
