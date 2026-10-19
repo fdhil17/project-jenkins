@@ -31,7 +31,7 @@ pipeline {
                     string(credentialsId: 'db-password', variable: 'DB_PASSWORD')
                 ]) {
                     bat '"%COMPOSE_EXE%" up -d --build'
-                    bat 'curl.exe -fsS --retry 15 --retry-delay 3 --retry-connrefused http://localhost:5000/'
+                    bat 'curl.exe -fsS --retry 15 --retry-delay 3 --retry-connrefused --retry-all-errors http://localhost:5000/'
                 }
             }
         }
