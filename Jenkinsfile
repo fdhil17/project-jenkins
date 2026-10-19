@@ -5,6 +5,7 @@ pipeline {
         IMAGE_TAG            = "${BUILD_NUMBER}"
         REGISTRY_CREDENTIALS = 'dockerhub-credentials'
         COMPOSE_PROJECT_NAME = 'flask-mysql'
+        COMPOSE_EXE          = 'C:\\Users\\LENOVO\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker-compose.exe'
     }
     stages {
         stage('Checkout') { steps { checkout scm } }
@@ -29,7 +30,7 @@ pipeline {
                     string(credentialsId: 'db-root-password', variable: 'DB_ROOT_PASSWORD'),
                     string(credentialsId: 'db-password', variable: 'DB_PASSWORD')
                 ]) {
-                    bat 'docker compose up -d --build'
+                    bat '"%COMPOSE_EXE%" up -d --build'
                     bat 'curl.exe -fsS --retry 15 --retry-delay 3 --retry-connrefused http://localhost:5000/'
                 }
             }
