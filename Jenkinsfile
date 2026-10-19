@@ -1,43 +1,39 @@
 pipeline {
     agent any
-
     environment {
-        IMAGE_NAME = 'fdhil17/jenkins-push'
+        IMAGE_NAME           = 'fdhil17/jenkins-push'
+        IMAGE_TAG            = "${BUILD_NUMBER}"
         REGISTRY_CREDENTIALS = 'dockerhub-credentials'
+        COMPOSE_PROJECT_NAME = 'flask-mysql'
     }
-
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
+        stage('Checkout') { steps { checkout scm } }
         stage('Build Docker Image') {
             steps {
                 bat 'docker build -t %IMAGE_NAME%:%BUILD_NUMBER% .'
                 bat 'docker tag %IMAGE_NAME%:%BUILD_NUMBER% %IMAGE_NAME%:latest'
             }
         }
-
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: REGISTRY_CREDENTIALS,
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
+                withCredentials([usernamePassword(credentialsId: REGISTRY_CREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     bat 'echo %DOCKER_PASS%| docker login -u %DOCKER_USER% --password-stdin'
                     bat 'docker push %IMAGE_NAME%:%BUILD_NUMBER%'
                     bat 'docker push %IMAGE_NAME%:latest'
                 }
             }
         }
-    }
-
-    post {
-        always {
-            echo 'Selesai build'
+        stage('Deploy App + Database') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'db-root-password', variable: 'DB_ROOT_PASSWORD'),
+                    string(credentialsId: 'db-password', variable: 'DB_PASSWORD')
+                ]) {
+                    bat 'docker compose up -d --build'
+                    bat 'curl.exe -fsS --retry 15 --retry-delay 3 --retry-connrefused http://localhost:5000/'
+                }
+            }
         }
     }
+    post { always { echo 'Selesai build' } }
 }
