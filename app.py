@@ -1,7 +1,7 @@
-import os
+﻿import os
 import time
 import mysql.connector
-from flask import Flask, jsonify, request
+from flask import Flask
 
 app = Flask(__name__)
 
@@ -21,10 +21,9 @@ def init_db():
             conn = get_conn()
             cur = conn.cursor()
             cur.execute(
-                "CREATE TABLE IF NOT EXISTS notes ("
+                "CREATE TABLE IF NOT EXISTS kunjungan ("
                 "id INT AUTO_INCREMENT PRIMARY KEY, "
-                "content VARCHAR(255) NOT NULL, "
-                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
+                "waktu TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
             )
             conn.commit()
             cur.close()
@@ -37,33 +36,15 @@ def init_db():
 
 @app.route("/")
 def index():
-    return "Halo dari Flask + MySQL + Docker + Jenkins!"
-
-
-@app.route("/notes", methods=["GET"])
-def list_notes():
-    conn = get_conn()
-    cur = conn.cursor(dictionary=True)
-    cur.execute("SELECT id, content, created_at FROM notes ORDER BY id DESC")
-    rows = cur.fetchall()
-    cur.close()
-    conn.close()
-    return jsonify(rows)
-
-
-@app.route("/notes", methods=["POST"])
-def add_note():
-    data = request.get_json(silent=True) or {}
-    content = str(data.get("content", "")).strip()
-    if not content:
-        return jsonify(error="content wajib diisi"), 400
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("INSERT INTO notes (content) VALUES (%s)", (content,))
+    cur.execute("INSERT INTO kunjungan () VALUES ()")
     conn.commit()
+    cur.execute("SELECT COUNT(*) FROM kunjungan")
+    total = cur.fetchone()[0]
     cur.close()
     conn.close()
-    return jsonify(message="tersimpan"), 201
+    return f"Halo dari Flask + Docker + Jenkins! Terhubung ke MySQL. Total kunjungan tersimpan di database: {total}"
 
 
 if __name__ == "__main__":
